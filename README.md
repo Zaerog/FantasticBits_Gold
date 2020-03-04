@@ -1,4 +1,5 @@
-# FantasticBitsAI
+# Fantastic Bits
+
 Achieved Gold rating in C++
 
 
