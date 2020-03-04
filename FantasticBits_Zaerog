@@ -1,0 +1,258 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <math.h>
+
+using namespace std;
+
+/**
+ * Grab Snaffles and try to throw them through the opponent's goal!
+ * Move towards a Snaffle and use your team id to determine where you need to throw it.
+ **/
+
+int main()
+{  
+    int turn=0;
+
+    
+    double goalangle1;
+    double goalangle2;
+
+    int myTeamId; // if 0 you need to score on the right of the map, if 1 you need to score on the left
+    cin >> myTeamId; cin.ignore();
+    
+    struct Thingy{
+            int entityId; // entity identifier
+            string entityType; // "WIZARD", "OPPONENT_WIZARD" or "SNAFFLE" (or "BLUDGER" after first league)
+            int x; // position
+            int y; // position
+            int vx; // velocity
+            int vy; // velocity
+            int state; // 1 if the wizard is holding a Snaffle, 0 otherwise
+            double entityAngle;
+            double distance0;
+            double distance1;
+            Thingy(int id, string entityType, int x, int y, int vx, int vy, int state) {
+                this->entityId = id;
+                this->entityType = entityType;
+                this->x = x;
+                this->y = y;
+                this->vx = vx;
+                this->vy = vy;
+                this->state = state;
+            }
+    };
+    
+    // game loop
+    while (1) {
+        
+        vector<Thingy*> snaffles;
+        vector<Thingy*> wizards;
+        vector<Thingy*> bludgers;
+        
+        Thingy* dummy=new Thingy(99,"dummy",99,99,99,99,99);
+        dummy->distance0=32000;
+        dummy->distance1=32000;
+        int snafflesSize = 0;
+        int bludgersSize = 0;
+        
+    
+        int fliptarget0=-1;
+        int fliptarget1=-1;
+        Thingy* target0;
+        Thingy* target1;
+
+        
+        int myScore;
+        int myMagic;
+        cin >> myScore >> myMagic; cin.ignore();
+        int opponentScore;
+        int opponentMagic;
+        cin >> opponentScore >> opponentMagic; cin.ignore();
+        int entities; // number of entities still in game
+        cin >> entities; cin.ignore();
+        for (int i = 0; i < entities; i++) {
+            int entityId; // entity identifier
+            string entityType; // "WIZARD", "OPPONENT_WIZARD" or "SNAFFLE" (or "BLUDGER" after first league)
+            int x; // position
+            int y; // position
+            int vx; // velocity
+            int vy; // velocity
+            int state; // 1 if the wizard is holding a Snaffle, 0 otherwise
+            cin >> entityId >> entityType >> x >> y >> vx >> vy >> state; cin.ignore();
+            Thingy* thingy= new Thingy(entityId, entityType, x, y, vx, vy,state);
+            
+            if(entityType=="SNAFFLE"){
+                snaffles.push_back(thingy);
+                snafflesSize++;                
+            }else if(entityType=="WIZARD"){
+                wizards.push_back(thingy);
+            }else if(entityType=="BLUDGER"){
+                bludgers.push_back(thingy);
+                bludgersSize++;
+            }
+       
+        }
+            // Write an action using cout. DON'T FORGET THE "<< endl"
+            // To debug: cerr << "Debug messages..." << endl;
+            
+            
+            
+            
+            
+            
+            
+            turn++;
+            target0=dummy;
+            target1=dummy;
+            
+              //WIZARD0--------------------------------------------------------------------
+              //angles calc
+              if(myTeamId==0){
+                  goalangle1=atan2(16000-wizards[0]->x,2300-wizards[0]->y);
+                  goalangle2=atan2(16000-wizards[0]->x,5200-wizards[0]->y);
+                    for(int i=0;i<snafflesSize;i++){
+                      snaffles[i]->entityAngle=atan2(snaffles[i]->x-wizards[0]->x,snaffles[i]->y-wizards[0]->y);
+                      snaffles[i]->distance0=sqrt(pow((wizards[0]->x-snaffles[i]->x), 2.0) + pow((wizards[0]->y-snaffles[i]->y),2.0));
+                      snaffles[i]->distance1=sqrt(pow((wizards[1]->x-snaffles[i]->x), 2.0) + pow((wizards[1]->y-snaffles[i]->y),2.0));
+                      if(snaffles[i]->entityAngle>goalangle2 && snaffles[i]->entityAngle<goalangle1){
+                          fliptarget0=snaffles[i]->entityId;
+                      }
+                  }
+              }else{
+                  goalangle1=atan2(0-wizards[0]->x,2300-wizards[0]->y);
+                  goalangle2=atan2(0-wizards[0]->x,5200-wizards[0]->y);    
+                  
+                  for(int i=0;i<snafflesSize;i++){
+                      snaffles[i]->entityAngle=atan2(snaffles[i]->x-wizards[0]->x,snaffles[i]->y-wizards[0]->y);  
+                      snaffles[i]->distance0=sqrt(pow((wizards[0]->x-snaffles[i]->x), 2.0) + pow((wizards[0]->y-snaffles[i]->y),2.0));
+                      snaffles[i]->distance1=sqrt(pow((wizards[1]->x-snaffles[i]->x), 2.0) + pow((wizards[1]->y-snaffles[i]->y),2.0));
+                      if(snaffles[i]->entityAngle<goalangle2 && snaffles[i]->entityAngle>goalangle1){
+                          fliptarget0=snaffles[i]->entityId;
+                      }
+                  }
+              }
+              
+             //THROW---------------------------
+
+        if(wizards[0]->state==1){
+            if(myTeamId==0){ 
+                cout << "THROW 16000 3750 500" << endl; 
+               
+            }else{
+                cout << "THROW 0 3750 500" << endl;
+                
+            }
+                            
+                            
+              //SHOOOT------------------------              
+                          
+                         }else if(myMagic > 20 && fliptarget0 !=-1){                                            
+             
+                                         cout <<"FLIPENDO "<<fliptarget0<<endl;   
+                         
+                         }
+                         
+                   // MOOOOOVEEEEE OR ACC      
+                         else{
+                             
+                            for (int i =0; i < snafflesSize;i++){
+                                  if(snaffles[i]->distance0<target0->distance0){
+                                        target0=snaffles[i];                                     
+                             
+                                  }else if(snafflesSize==1){
+                                      target0=snaffles[0];
+                                  }
+                             }
+                            if(myTeamId==0 && myMagic>15&& target0->x < wizards[0]->x && sqrt(pow((wizards[0]->x-target0->x), 2.0) + pow((wizards[0]->y-target0->y),2.0))>2000){ 
+                                cout << "ACCIO " << target0->entityId<<endl; 
+                                                
+                            }else if(myTeamId==1 && myMagic>15&& target0->x > wizards[0]->x&& sqrt(pow((wizards[0]->x-target0->x), 2.0) + pow((wizards[0]->y-target0->y),2.0))>2000){ 
+                                cout << "ACCIO " << target0->entityId<<endl; 
+                            }else{
+                             cout <<"MOVE "<<target0->x <<" "<<target0->y << " 150"<<endl;  
+                            } 
+                        }
+            
+
+            
+      //-----------------------Wizard1 
+      //calc angles
+              if(myTeamId==0){
+                  goalangle1=atan2(16000-wizards[1]->x,2300-wizards[1]->y);
+                  goalangle2=atan2(16000-wizards[1]->x,5200-wizards[1]->y);
+                    for(int i=0;i<snafflesSize;i++){
+                      snaffles[i]->entityAngle=atan2(snaffles[i]->x-wizards[1]->x,snaffles[i]->y-wizards[1]->y);  
+                      if(snaffles[i]->entityAngle>goalangle2 && snaffles[i]->entityAngle<goalangle1){
+                          fliptarget1=snaffles[i]->entityId;
+                      }
+                  }
+              }else{
+                  goalangle1=atan2(0-wizards[1]->x,2300-wizards[1]->y);
+                  goalangle2=atan2(0-wizards[1]->x,5200-wizards[1]->y);    
+                  
+                  for(int i=0;i<snafflesSize;i++){
+                      snaffles[i]->entityAngle=atan2(snaffles[i]->x-wizards[1]->x,snaffles[i]->y-wizards[1]->y);  
+                      if(snaffles[i]->entityAngle<goalangle2 && snaffles[i]->entityAngle>goalangle1){
+                          fliptarget1=snaffles[i]->entityId;
+                      }
+                  }
+              }
+      
+           // throw-------------- 
+            if(wizards[1]->state==1){
+                if(myTeamId==0){ 
+                    cout << "THROW 16000 3750 500" << endl;   
+                    
+                }else{
+                    cout << "THROW 0 3750 500" << endl;  
+                     
+                }
+             
+             
+             
+             //shoooot-----------------------------------
+                         }else if(myMagic > 20 && fliptarget1 !=-1){                                            
+             
+                                         cout <<"FLIPENDO "<<fliptarget1<<endl;   
+                         
+                         }
+             
+             
+             //move or ACC-------------------------------
+             
+             
+                     else{
+                             
+                            for (int i =0; i < snafflesSize;i++){
+                                  if(snaffles[i]->distance1<target1->distance1 && snaffles[i]->entityId!=target0->entityId){
+                                        target1=snaffles[i];                                    
+                             
+                                  }else if(snafflesSize==1){
+                                      target1=snaffles[0];
+                                  }          
+                             }
+                            if(myTeamId==0 && myMagic>15&& target1->x < wizards[1]->x && sqrt(pow((wizards[1]->x-target1->x), 2.0) + pow((wizards[1]->y-target1->y),2.0))>2000){ 
+                                cout << "ACCIO " << target1->entityId<<endl; 
+                                                
+                            }else if(myTeamId==1 && myMagic>15&& target0->x > wizards[1]->x&& sqrt(pow((wizards[1]->x-target1->x), 2.0) + pow((wizards[1]->y-target1->y),2.0))>2000){ 
+                                cout << "ACCIO " << target1->entityId<<endl; 
+                            }else{
+                             cout <<"MOVE "<<target1->x <<" "<<target1->y << " 150"<<endl;  
+                            } 
+                        }
+             
+             
+            
+            
+            
+
+            
+
+          // Edit this line to indicate the action for each wizard (0 = thrust = 150, 0 = power = 500)
+            // i.e.: "MOVE x y thrust" or "THROW x y power"
+            
+           // 10 center snaffle
+    }
+}
